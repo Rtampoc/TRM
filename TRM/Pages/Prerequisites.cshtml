@@ -1,0 +1,620 @@
+@* @* @page "/Prerequisites"
+@model TRM.Pages.PrerequisitesModel
+@{
+    ViewData["Title"] = "Prerequisites Management";
+    Layout = "~/Pages/Shared/_LayoutDashboard.cshtml";
+}
+
+<div class="prerequisites-header">
+    <h1 class="prerequisites-title">Prerequisites Management</h1>
+    <p class="prerequisites-subtitle">Select a category below to manage its records.</p>
+</div>
+
+<!-- Category Cards -->
+<div class="category-grid">
+    @foreach (var category in Model.Categories)
+    {
+        var categoryKey = category.Name.ToLower().Replace(" ", "-");
+        var isActive = Model.SelectedCategory == categoryKey;
+        var icon = GetCategoryIcon(category.Name);
+        var count = GetCategoryCount(Model, categoryKey);
+
+        <a href="/Prerequisites?category=@categoryKey" 
+           class="category-card @(isActive ? "active" : "")"
+           onclick="selectCategory(event, '@categoryKey')">
+            <div class="category-icon">@Html.Raw(icon)</div>
+            <div class="category-name">@category.Name</div>
+            <div class="category-count">@count Record@(count != 1 ? "s" : "")</div>
+        </a>
+    }
+</div>
+
+<!-- Data Display Section - Always Show Customers  -->
+<div class="prerequisites-content">
+    <div class="prerequisites-list-header">
+        <h2 class="prerequisites-list-title">Customers List</h2>
+        <button class="btn-add-item" onclick="addNewItem()">+ Add Customers</button>
+    </div>
+
+    <!-- Customers Table -->
+    <table class="prerequisites-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>BP Code</th>
+                <th>Status</th>
+                <th>Added Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Customers?.Count > 0)
+            {
+                @foreach (var customer in Model.Customers)
+                {
+                    <tr>
+                        <td>@customer.BPName</td>
+                        <td>@customer.BPCode</td>
+                        <td>
+                            <span class="@(customer.IsActive ? "status-active" : "status-inactive")">
+                                @(customer.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>@customer.DateCreated?.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" title="Edit">✏️</button>
+                                <button class="btn-icon" title="Delete">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-prerequisites">
+                            <div class="empty-prerequisites-icon">📋</div>
+                            <div class="empty-prerequisites-text">No customers found</div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        function selectCategory(event, category) {
+            // Prevent default link behavior
+            event.preventDefault();
+            // Navigate to the new category
+            window.location.href = `/Prerequisites?category=${category}`;
+        }
+
+        function addNewItem() {
+            // Placeholder for add new item functionality
+            alert('Add new item functionality to be implemented');
+        }
+
+        function editItem(id) {
+            // Placeholder for edit functionality
+            alert(`Edit item ${id} functionality to be implemented`);
+        }
+
+        function deleteItem(id) {
+            // Placeholder for delete functionality
+            if (confirm('Are you sure you want to delete this item?')) {
+                alert(`Delete item ${id} functionality to be implemented`);
+            }
+        }
+    </script>
+}
+
+@functions {
+    private string GetCategoryIcon(string categoryName)
+    {
+        return categoryName switch
+        {
+            "Customers" => "<i class='icon-users'>👤</i>",
+            "Tool Types" => "<i class='icon-tools'>⚙️</i>",
+            "Reasons for Revision" => "<i class='icon-revision'>📝</i>",
+            "Noted By" => "<i class='icon-noted'>✓</i>",
+            "Registered By" => "<i class='icon-registered'>👥</i>",
+            _ => "📋"
+        };
+    }
+
+    private int GetCategoryCount(PrerequisitesModel model, string categoryKey)
+    {
+        return categoryKey switch
+        {
+            "customers" => model.Customers?.Count ?? 0,
+            "tool-types" => model.ToolTypes?.Count ?? 0,
+            "reasons-for-revision" => model.ReasonsForRevRep?.Count ?? 0,
+            "noted-by" => model.NotedByList?.Count ?? 0,
+            "registered-by" => model.RegisteredByList?.Count ?? 0,
+            _ => 0
+        };
+    }
+}
+ *@
+
+
+
+
+@*/* ==========================================================================
+   Tool Request Management — Dashboard
+   Matches the original palette: navy sidebar #0F172A, blue accent #2563EB
+   Font: Inter throughout
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --sidebar-bg: #0F172A;
+  --sidebar-active: #2563EB;
+  --sidebar-hover: #1E293B;
+  --sidebar-line: #1E293B;
+  --sidebar-text: #94A3B8;
+  --paper: #F8FAFC;
+  --card: #FFFFFF;
+  --border: #E2E8F0;
+  --text: #0F172A;
+  --muted: #64748B;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --success-bg: #DCFCE7;
+  --success-text: #16A34A;
+  --warning-bg: #FEF3C7;
+  --warning-text: #D97706;
+  --danger-bg: #FEE2E2;
+  --danger-text: #DC2626;
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.05);
+  --shadow-card: 0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-hover: 0 8px 20px rgba(15,23,42,0.10);
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Shell ---------- */
+.dashboard-wrapper { display: flex; min-height: 100vh; }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid var(--sidebar-line); }
+
+.app-logo { display: flex; align-items: center; gap: 12px; }
+
+.logo-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-icon svg { width: 18px; height: 18px; }
+
+.logo-content { display: flex; flex-direction: column; line-height: 1.2; }
+.logo-text { font-weight: 700; font-size: 17px; color: #fff; letter-spacing: -0.2px; }
+.logo-subtitle { font-size: 11px; font-weight: 500; letter-spacing: 0.6px; color: var(--sidebar-text); margin-top: 2px; }
+
+.sidebar-menu { padding: 14px 12px; flex: 1; }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  border-radius: 6px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 14.5px;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.menu-item:hover { background: var(--sidebar-hover); color: #fff; }
+.menu-item.active { background: var(--sidebar-active); color: #fff; }
+.menu-icon { width: 18px; height: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.menu-icon svg { width: 100%; height: 100%; }
+
+.sidebar-footer { border-top: 1px solid var(--sidebar-line); padding: 16px; }
+
+.user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--sidebar-hover);
+  color: #fff;
+  font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.user-details { line-height: 1.3; overflow: hidden; }
+.user-name { font-size: 13.5px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-id { font-size: 11.5px; color: var(--sidebar-text); }
+
+.sign-out-btn {
+  display: block; text-align: center; padding: 8px;
+  border-radius: 6px; border: 1px solid var(--sidebar-line);
+  color: var(--sidebar-text); text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  transition: border-color 0.15s, color 0.15s;
+}
+.sign-out-btn:hover { border-color: var(--primary); color: #fff; }
+
+/* ---------- Main ---------- */
+.main-content { flex: 1; min-width: 0; }
+
+.dashboard-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 26px 36px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.header-content h1 { font-weight: 700; font-size: 24px; margin: 0 0 4px; color: var(--text); letter-spacing: -0.3px; }
+.header-content p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.btn-new-request {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+.btn-new-request:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-new-request:active { transform: translateY(0); }
+
+.dashboard-content { padding: 28px 36px 48px; max-width: 1180px; }
+
+/* ---------- Tool Tag rows ---------- */
+.tag-list { display: flex; flex-direction: column; gap: 10px; }
+
+.tool-tag {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  display: grid;
+  grid-template-columns: 46px 130px 1fr 130px 130px;
+  align-items: center;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+}
+.tool-tag:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); border-color: #CBD5E1; }
+
+.tag-rivet {
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--border);
+}
+.tag-rivet::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--paper); border: 2px solid #CBD5E1; }
+.tool-tag[data-status="draft"] .tag-rivet::before { border-color: var(--warning-text); }
+.tool-tag[data-status="submitted"] .tag-rivet::before { border-color: var(--success-text); }
+.tool-tag[data-status="rejected"] .tag-rivet::before { border-color: var(--danger-text); }
+
+.tag-number { font-weight: 600; font-size: 14.5px; color: var(--primary); padding: 16px 14px; }
+
+.tag-customer { padding: 16px 8px; min-width: 0; }
+.tag-customer-name { font-weight: 600; font-size: 14.5px; color: var(--text); }
+.tag-customer-label { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+
+.tag-date { font-size: 13.5px; color: var(--muted); padding: 16px 8px; }
+
+.tag-status-cell { padding: 16px 18px 16px 8px; display: flex; justify-content: flex-start; }
+
+.stamp {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+.stamp.draft { color: var(--warning-text); background: var(--warning-bg); }
+.stamp.submitted { color: var(--success-text); background: var(--success-bg); }
+.stamp.rejected { color: var(--danger-text); background: var(--danger-bg); }
+
+.tag-list-header {
+  display: grid;
+  grid-template-columns: 46px 130px 1fr 130px 130px;
+  padding: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+}
+.tag-list-header span:nth-child(1) { text-align: center; }
+.tag-list-header span { padding: 0 14px; }
+
+/* ---------- Prerequisites: category cards ---------- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.category-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 16px 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.category-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+.category-card.active { border-color: var(--primary); box-shadow: var(--shadow-hover); background: #EFF6FF; }
+
+.category-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+  color: var(--muted);
+}
+.category-card.active .category-icon { background: var(--primary); color: #fff; }
+.category-icon svg { width: 17px; height: 17px; }
+
+.category-title { font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 2px; }
+.category-count { font-size: 12px; color: var(--muted); }
+
+/* ---------- Prerequisites: record table ---------- */
+.record-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.record-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+}
+.record-panel-header h2 { font-weight: 700; font-size: 17px; margin: 0; color: var(--text); }
+
+.btn-add {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.15s ease;
+}
+.btn-add:hover { background: var(--primary-hover); }
+
+table.record-table { width: 100%; border-collapse: collapse; }
+.record-table thead { background: var(--paper); }
+.record-table thead th {
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 11px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.record-table thead th:last-child { text-align: right; }
+
+.record-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s ease; }
+.record-table tbody tr:last-child { border-bottom: none; }
+.record-table tbody tr:hover { background: #F8FAFC; }
+
+.record-table tbody td { padding: 13px 22px; font-size: 14px; color: var(--text); }
+.record-table td.mono { color: var(--muted); font-size: 13.5px; }
+
+.status-chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+.status-chip.active { color: var(--success-text); background: var(--success-bg); }
+.status-chip.inactive { color: var(--muted); background: #F1F5F9; }
+
+.row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.icon-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.icon-btn:hover { border-color: var(--primary); color: var(--primary); background: #EFF6FF; }
+.icon-btn.danger:hover { border-color: var(--danger-text); color: var(--danger-text); background: var(--danger-bg); }
+.icon-btn svg { width: 14px; height: 14px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 880px) {
+  .dashboard-wrapper { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; }
+  .sidebar-menu { display: flex; padding: 8px; flex: none; }
+  .sidebar-footer { display: none; }
+  .dashboard-header { flex-direction: column; align-items: stretch; }
+  .tool-tag, .tag-list-header { grid-template-columns: 40px 1fr; }
+  .tag-date, .tag-status-cell { display: none; }
+}
+
+/* ---------- Focus states ---------- */
+a:focus-visible, button:focus-visible, .tool-tag:focus-visible, .category-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+} *@
+
+
+  @page
+@model TRM.Pages.PrerequisitesModel
+@{
+    ViewData["Title"] = "Prerequisites";
+    ViewData["Active"] = "prereqs";
+    Layout = "~/Pages/Shared/_LayoutDashboard.cshtml";
+}
+
+<header class="dashboard-header">
+    <div class="header-content">
+        <h1>Prerequisites Management</h1>
+        <p>Select a category below to manage its records.</p>
+    </div>
+</header>
+
+<div class="dashboard-content">
+    <div class="category-grid">
+        <div class="category-card active" tabindex="0" data-category="customers">
+            <div class="category-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="category-title">Customers</div>
+            <div class="category-count">2 Records</div>
+        </div>
+
+        <div class="category-card" tabindex="0" data-category="tooltypes">
+            <div class="category-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </div>
+            <div class="category-title">Tool Types</div>
+            <div class="category-count">2 Records</div>
+        </div>
+
+        <div class="category-card" tabindex="0" data-category="category">
+            <div class="category-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div class="category-title">Category</div>
+            <div class="category-count">2 Records</div>
+        </div>
+
+        <div class="category-card" tabindex="0" data-category="reasons">
+            <div class="category-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+            </div>
+            <div class="category-title">Reasons for Revision</div>
+            <div class="category-count">2 Records</div>
+        </div>
+
+        <div class="category-card" tabindex="0" data-category="notedby">
+            <div class="category-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="category-title">Noted By</div>
+            <div class="category-count">2 Records</div>
+        </div>
+
+        <div class="category-card" tabindex="0" data-category="registeredby">
+            <div class="category-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="category-title">Registered By</div>
+            <div class="category-count">2 Records</div>
+        </div>
+    </div>
+
+    <div class="record-panel">
+        <div class="record-panel-header">
+            <h2>Customers List</h2>
+            <button class="btn-add">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add Customer
+            </button>
+        </div>
+        <table class="record-table">
+            <thead>
+                <tr>
+                    <th>BP Code</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Added Date</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @* Replace with @foreach (var c in Model.Customers) using your real data *@
+                <tr>
+                    <td class="mono">BP-0231</td>
+                    <td>3C Signature Asian Group Corp</td>
+                    <td><span class="status-chip active">Active</span></td>
+                    <td class="mono">2025-10-12</td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="icon-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                            <button class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mono">BP-0198</td>
+                    <td>TechCorp Manufacturing</td>
+                    <td><span class="status-chip active">Active</span></td>
+                    <td class="mono">2025-11-05</td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="icon-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                            <button class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Swap the active category card and reload the record panel for that category.
+    // Wire the fetch/AJAX call to your Prerequisites page handler as needed.
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelector('.category-card.active')?.classList.remove('active');
+            card.classList.add('active');
+        });
+        card.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') card.click();
+        });
+    });
+</script>
+}

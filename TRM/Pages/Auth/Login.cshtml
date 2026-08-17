@@ -1,0 +1,348 @@
+@page "/Auth/Login"
+@model TRM.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Secure login for Tool Request Management System" />
+    <meta name="theme-color" content="#2E5F8A" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TRM" />
+    <title>@ViewData["Title"] - Tool Request Management System</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="~/manifest.json" asp-append-version="true" />
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="apple-touch-icon" href="~/img/PTI_nb.png" />
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/features/auth/login.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Security header removed per request -->
+
+    <div class="login-container">
+        <div class="login-wrapper">
+            <!-- Left Section - Illustration and Info -->
+            <div class="login-left">
+                <!-- Company Branding -->
+                <div class="company-branding">
+                    @* <h1 class="company-name">PRIMEPACK</h1> *@
+                    <h1 class="company-tagline"><strong>Tool Request Management</strong></h1>
+                </div>
+
+                <!-- Illustration -->
+                <div class="login-illustration">
+                    <img src="~/img/PTI_nb.png" alt="PRIMEPACK Logo" class="illustration-image" />
+                </div>
+
+                <!-- Info Section -->
+                <div class="login-info">
+                    <h2 class="info-title">Streamlined Tool Management</h2>
+                    <p class="info-description">
+                        Efficiently manage tool requests with our centralized platform. Submit, track, and organize your tool requests in real-time with complete visibility and control.
+                    </p>
+
+                    <!-- Features List -->
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Centralized Management</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Real-time Tracking</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">Secure & Reliable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="login-footer-info">
+                    <p class="footer-text">🛡️ Enterprise-grade security. Always protected.</p>
+                </div>
+            </div>
+
+            <!-- Right Section - Login Form -->
+            <div class="login-right">
+                <div class="login-form-wrapper">
+                    <h1 class="login-heading">Sign In</h1>
+                    <p class="login-subtitle">Access your Tool Request Account</p>
+
+                    <!-- Error Alert -->
+                    @if (!string.IsNullOrEmpty(Model?.LoginForm?.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <div class="alert-content">
+                                <span class="alert-icon">⚠️</span>
+                                <div>
+                                    <strong>Login Failed</strong>
+                                    <p class="mb-0">@Model.LoginForm.ErrorMessage</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <!-- Login Form -->
+                    <form method="post" class="login-form" id="loginForm">
+                        <!-- User ID Field -->
+                        <div class="form-group mb-4">
+                            <label for="userId" class="form-label">
+                                <span class="label-icon">👤</span>
+                                User ID
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="userId" 
+                                       placeholder="your.username"
+                                       required 
+                                       asp-for="LoginForm.UserId"
+                                       autocomplete="username" />
+                                <span class="input-focus-line"></span>
+                            </div>
+                            <small class="form-text">Enter your company username</small>
+                            <span class="text-danger" asp-validation-for="LoginForm.UserId"></span>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label">
+                                <span class="label-icon">🔐</span>
+                                Password
+                            </label>
+                            <div class="password-wrapper">
+                                <input type="password" 
+                                       class="form-control form-control-lg" 
+                                       id="password" 
+                                       placeholder="••••••••"
+                                       required 
+                                       asp-for="LoginForm.Password"
+                                       autocomplete="current-password" />
+                                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()" title="Toggle password visibility">
+                                    <span class="eye-icon show">👁️</span>
+                                </button>
+                                <span class="input-focus-line"></span>
+                            </div>
+                            <small class="form-text">Enter your secure password</small>
+                            <span class="text-danger" asp-validation-for="LoginForm.Password"></span>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="form-options">
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input" 
+                                       id="rememberMe" 
+                                       asp-for="LoginForm.RememberMe" />
+                                <label class="form-check-label" for="rememberMe">
+                                    Keep me signed in
+                                </label>
+                            </div>
+                            <a href="#" class="forgot-password-link">Forgot Password?</a>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button type="submit" class="btn btn-login btn-lg w-100 mb-3" id="loginBtn">
+                            <span class="btn-content">
+                                <span class="btn-text">SIGN IN</span>
+                                <span class="btn-loader" style="display: none;">
+                                    <span class="spinner"></span>
+                                </span>
+                            </span>
+                        </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="divider my-4">
+                        <span>New User?</span>
+                    </div>
+
+                    <!-- Help Section -->
+                    <p class="text-center text-muted mb-0">
+                        <small>
+                            <a href="#" class="link-help">Need help logging in?</a> • 
+                            <a href="#" class="link-help">Contact Support</a>
+                        </small>
+                    </p>
+                </div>
+
+                <!-- Form Footer -->
+                <div class="form-footer">
+                    <p class="footer-copyright">© 2026 PRIMEPACK. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const button = document.querySelector('.toggle-password');
+            const eyeIcon = button.querySelector('.eye-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.textContent = '🙈';
+                button.classList.add('visible');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.textContent = '👁️';
+                button.classList.remove('visible');
+            }
+        }
+
+        // Enhanced form interactions
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.closest('.input-wrapper, .password-wrapper')?.classList.add('focused');
+                this.parentElement.classList.add('focused');
+            });
+            input.addEventListener('blur', function() {
+                this.closest('.input-wrapper, .password-wrapper')?.classList.remove('focused');
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+            input.addEventListener('input', function() {
+                if (this.value) {
+                    this.parentElement.classList.add('focused');
+                }
+            });
+        });
+
+        // Form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('loginBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoader = btn.querySelector('.btn-loader');
+
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'block';
+        });
+
+        // Add smooth page load animation
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded');
+
+            // Auto-hide error alerts after 2.5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(a => {
+                setTimeout(() => {
+                    a.style.transition = 'opacity 300ms ease-out, transform 300ms ease-out';
+                    a.style.opacity = '0';
+                    a.style.transform = 'translateY(-10px)';
+                    setTimeout(() => { a.remove(); }, 350);
+                }, 2500);
+            });
+        });
+    </script>
+
+    <script>
+        // Auto-format User ID while user types. Do NOT prefill the field.
+        (function() {
+            const input = document.getElementById('userId');
+            if (!input) return;
+            const RAW_MAX = 9; // raw characters (no dashes)
+
+            // allow formatted length (including two dashes): 11
+            try { input.maxLength = 11; } catch (e) {}
+
+            function rawFromValue(val) {
+                return (val || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, RAW_MAX);
+            }
+
+            function formatRaw(raw) {
+                const p1 = raw.slice(0, 3);
+                const p2 = raw.slice(3, 5);
+                const p3 = raw.slice(5, 9);
+                let out = p1;
+                if (p2) out += '-' + p2;
+                if (p3) out += '-' + p3;
+                return out;
+            }
+
+            input.addEventListener('input', function (e) {
+                const raw = rawFromValue(this.value);
+                const formatted = formatRaw(raw);
+                this.value = formatted;
+                // place caret at end for simplicity
+                this.setSelectionRange(this.value.length, this.value.length);
+            });
+
+            input.addEventListener('paste', function (e) {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+                const raw = rawFromValue(text);
+                this.value = formatRaw(raw);
+                this.setSelectionRange(this.value.length, this.value.length);
+            });
+        })();
+    </script>
+
+    <!-- PWA Support Inline Script -->
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(reg => console.log('[PWA] Service Worker registered:', reg))
+                .catch(err => console.error('[PWA] Service Worker registration failed:', err));
+        }
+
+        // Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            if (!document.getElementById('pwa-install-btn')) {
+                const btn = document.createElement('button');
+                btn.id = 'pwa-install-btn';
+                btn.className = 'btn btn-sm btn-primary';
+                btn.innerHTML = '📱 Install App';
+                btn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; border-radius: 50px; padding: 10px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
+
+                btn.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('[PWA] Install outcome:', outcome);
+                    deferredPrompt = null;
+                    btn.remove();
+                });
+
+                document.body.appendChild(btn);
+            }
+        }
+
+        // Online/Offline detection
+        window.addEventListener('offline', () => {
+            console.log('[PWA] Offline mode');
+        });
+
+        window.addEventListener('online', () => {
+            console.log('[PWA] Back online');
+        });
+
+        console.log('[PWA] PWA Init - Online:', navigator.onLine, 'SW Support:', 'serviceWorker' in navigator);
+    </script>
+</body>
+</html>
