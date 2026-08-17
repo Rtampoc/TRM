@@ -1,96 +1,3 @@
-@* @{
-    Layout = null;
-}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Tool Request Management System Dashboard" />
-    <meta name="theme-color" content="#2E5F8A" />
-    <title>TRM Dashboard</title>
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="~/manifest.json" asp-append-version="true" />
-    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-    <link rel="apple-touch-icon" href="~/img/PTI_nb.png" />
-
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
-</head>
-<body>
-    <div class="dashboard-wrapper">
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <div class="app-logo">
-                    <span class="logo-icon">🔧</span>
-                    <div class="logo-content">
-                        <span class="logo-text">ToolingApp</span>
-                        <span class="logo-subtitle">PRIMEPACK</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-menu">
-                <a href="/" class="menu-item active">
-                    <span class="menu-icon">📋</span>
-                    <span class="menu-text">Tooling Requests</span>
-                </a>
-                <a href="/Prerequisites" class="menu-item">
-                    <span class="menu-icon">⚙️</span>
-                    <span class="menu-text">Prerequisites</span>
-                </a>
-            </div>
-
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">👤</div>
-                    <div class="user-details">
-                        <div class="user-name" id="userName">@(Context.Session.GetString("EmployeeName") ?? "User")</div>
-                        <div class="user-id" id="userId">@(Context.Session.GetString("Username") ?? "PTI-26-0000")</div>
-                        <div class="user-email" id="userEmail">@(Context.Session.GetString("Email") ?? "user@company.com")</div>
-                    </div>
-                </div>
-                <a href="/Auth/Logout" class="sign-out-btn">Sign Out</a>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="dashboard-header">
-                <div class="header-content">
-                    <h1>Tooling Requests</h1>
-                    <p>Manage all existing tooling requests or create a new one.</p>
-                </div>
-                <button class="btn btn-primary btn-new-request">
-                    <span>+ New Request</span>
-                </button>
-            </header>
-
-            <!-- Content Area -->
-            <div class="dashboard-content">
-                @RenderBody()
-            </div>
-        </main>
-    </div>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // New Request button handler
-        document.querySelector('.btn-new-request')?.addEventListener('click', function() {
-            // Navigate to create new request
-            window.location.href = '/ToolingRequest/Create';
-        });
-    </script>
-    @RenderSection("Scripts", required: false)
-</body>
-</html>
- *@
-
-
 @{
     Layout = null;
 }
@@ -157,6 +64,7 @@
                     <div class="user-details">
                         <div class="user-name">@(Context.Session.GetString("EmployeeName") ?? "User")</div>
                         <div class="user-id">@(Context.Session.GetString("Username") ?? "PTI-26-0000")</div>
+                        <div class="user-email">@(Context.Session.GetString("Email") ?? "Email")</div>
                     </div>
                 </div>
                 <a href="/Auth/Logout" class="sign-out-btn">Sign Out</a>

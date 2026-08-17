@@ -45,6 +45,15 @@ namespace TRM.Pages
                 Status = "SUBMITTED",
                 CreatedDate = DateTime.Now.AddDays(-3)
             });
+
+            ToolingRequests.Add(new ToolingRequestSummary
+            {
+                Id = 3,
+                RequestNumber = "TRF-2026-003",
+                CustomerName = "Katolec Philippines Corp",
+                Status = "REJECTED",
+                CreatedDate = DateTime.Now.AddDays(-2)
+            });
         }
     }
 
