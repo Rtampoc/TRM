@@ -598,6 +598,46 @@ body.loaded {
     box-shadow: 0 6px 20px rgba(46, 95, 138, 0.3), 
                 0 2px 8px rgba(46, 95, 138, 0.15);
     cursor: pointer;
+}
+
+.btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-text {
+    display: block;
+}
+
+.btn-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-circle {
+    width: 20px;
+    height: 20px;
+    animation: spinCircle 1s linear infinite;
+}
+
+@keyframes spinCircle {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-circle .path {
+    stroke: white;
+    stroke-linecap: round;
+    stroke-dasharray: 125.6;
+    stroke-dashoffset: 31.4;
+    animation: dashCircle 1.5s ease-in-out infinite;
+}
     position: relative;
     overflow: hidden;
     width: 100%;

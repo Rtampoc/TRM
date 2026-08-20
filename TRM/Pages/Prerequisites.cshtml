@@ -15,116 +15,469 @@
 
 <div class="dashboard-content">
     <div class="category-grid">
-        <div class="category-card active" tabindex="0" data-category="customers">
+        <a class="category-card @(Model.SelectedCategory == "customers" ? "active" : "")" tabindex="0" href="?category=customers">
             <div class="category-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <div class="category-title">Customers</div>
-            <div class="category-count">2 Records</div>
-        </div>
+            <div class="category-count">@Model.CustomersCount Records</div>
+        </a>
 
-        <div class="category-card" tabindex="0" data-category="tooltypes">
+        <a class="category-card @(Model.SelectedCategory == "tool-types" ? "active" : "")" tabindex="0" href="?category=tool-types">
             <div class="category-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
             </div>
             <div class="category-title">Tool Types</div>
-            <div class="category-count">2 Records</div>
-        </div>
+            <div class="category-count">@Model.ToolTypesCount Records</div>
+        </a>
 
-        <div class="category-card" tabindex="0" data-category="category">
+        <a class="category-card @(Model.SelectedCategory == "category" ? "active" : "")" tabindex="0" href="?category=category">
             <div class="category-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             </div>
             <div class="category-title">Category</div>
-            <div class="category-count">2 Records</div>
-        </div>
+            <div class="category-count">@Model.CategoriesCount Records</div>
+        </a>
 
-        <div class="category-card" tabindex="0" data-category="reasons">
+        <a class="category-card @(Model.SelectedCategory == "reasons-for-revision" ? "active" : "")" tabindex="0" href="?category=reasons-for-revision">
             <div class="category-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
             </div>
             <div class="category-title">Reasons for Revision</div>
-            <div class="category-count">2 Records</div>
-        </div>
+            <div class="category-count">@Model.ReasonsForRevRepCount Records</div>
+        </a>
 
-        <div class="category-card" tabindex="0" data-category="notedby">
+        <a class="category-card @(Model.SelectedCategory == "noted-by" ? "active" : "")" tabindex="0" href="?category=noted-by">
             <div class="category-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <div class="category-title">Noted By</div>
-            <div class="category-count">2 Records</div>
-        </div>
+            <div class="category-count">@Model.NotedByCount Records</div>
+        </a>
 
-        <div class="category-card" tabindex="0" data-category="registeredby">
+        <a class="category-card @(Model.SelectedCategory == "registered-by" ? "active" : "")" tabindex="0" href="?category=registered-by">
             <div class="category-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <div class="category-title">Registered By</div>
-            <div class="category-count">2 Records</div>
-        </div>
+            <div class="category-count">@Model.RegisteredByCount Records</div>
+        </a>
     </div>
 
     <div class="record-panel">
         <div class="record-panel-header">
-            <h2>Customers List</h2>
-            <button class="btn-add">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-                Add Customer
+            <h2>@Model.SelectedCategoryTitle List</h2>
+            <button type="button" class="add-btn-header" id="addRecordBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add @Model.SelectedCategoryTitle
             </button>
         </div>
+
         <table class="record-table">
             <thead>
                 <tr>
-                    <th>BP Code</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Added Date</th>
-                    <th style="text-align:right;">Actions</th>
+                    @if (Model.SelectedCategory == "customers")
+                    {
+                        <th>BP Code</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Added Date</th>
+                        <th style="text-align:right;">Actions</th>
+                    }
+                    else
+                    {
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Added Date</th>
+                        <th style="text-align:right;">Actions</th>
+                    }
                 </tr>
             </thead>
             <tbody>
-                @* Replace with @foreach (var c in Model.Customers) using your real data *@
-                <tr>
-                    <td class="mono">BP-0231</td>
-                    <td>3C Signature Asian Group Corp</td>
-                    <td><span class="status-chip active">Active</span></td>
-                    <td class="mono">2025-10-12</td>
-                    <td>
-                        <div class="row-actions">
-                            <button class="icon-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                            <button class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="mono">BP-0198</td>
-                    <td>TechCorp Manufacturing</td>
-                    <td><span class="status-chip active">Active</span></td>
-                    <td class="mono">2025-11-05</td>
-                    <td>
-                        <div class="row-actions">
-                            <button class="icon-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                            <button class="icon-btn danger" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg></button>
-                        </div>
-                    </td>
-                </tr>
+                @switch (Model.SelectedCategory)
+                {
+                    case "customers":
+                        @if (Model.Customers.Any())
+                        {
+                            foreach (var c in Model.Customers)
+                            {
+                                <tr>
+                                    <td class="mono">@c.BPCode</td>
+                                    <td><strong>@c.BPName</strong></td>
+                                    <td><span class="status-badge @(c.IsActive ? "active" : "inactive")">@(c.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="mono">@(c.DateCreated?.ToString("yyyy-MM-dd") ?? "")</td>
+                                    <td style="text-align:right;">
+                                        <button type="button" class="btn-icon-small btn-edit" data-id="@c.Id" data-category="customers" title="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
+                                        <form method="post" action="?handler=Delete" style="display:inline;" onsubmit="return confirm('Delete this customer?');">
+                                            <input type="hidden" name="category" value="customers" />
+                                            <input type="hidden" name="id" value="@c.Id" />
+                                            <button type="submit" class="btn-icon-small danger" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="5">No records found</td>
+                            </tr>
+                        }
+                        break;
+
+                    case "tool-types":
+                        @if (Model.ToolTypes.Any())
+                        {
+                            foreach (var t in Model.ToolTypes)
+                            {
+                                <tr>
+                                    <td><strong>@t.Name</strong></td>
+                                    <td><span class="status-badge @(t.IsActive ? "active" : "inactive")">@(t.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="mono">@(t.DateCreated?.ToString("yyyy-MM-dd") ?? "")</td>
+                                    <td style="text-align:right;">
+                                        <button type="button" class="btn-icon-small btn-edit" data-id="@t.Id" data-category="tool-types" title="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
+                                        <form method="post" action="?handler=Delete" style="display:inline;" onsubmit="return confirm('Delete this tool type?');">
+                                            <input type="hidden" name="category" value="tool-types" />
+                                            <input type="hidden" name="id" value="@t.Id" />
+                                            <button type="submit" class="btn-icon-small danger" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="4">No records found</td>
+                            </tr>
+                        }
+                        break;
+
+                    case "category":
+                        @if (Model.Categories.Any())
+                        {
+                            foreach (var cat in Model.Categories)
+                            {
+                                <tr>
+                                    <td><strong>@cat.Name</strong></td>
+                                    <td><span class="status-badge @(cat.IsActive ? "active" : "inactive")">@(cat.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="mono">@(cat.DateCreated?.ToString("yyyy-MM-dd") ?? "")</td>
+                                    <td style="text-align:right;">
+                                        <button type="button" class="btn-icon-small btn-edit" data-id="@cat.Id" data-category="category" title="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
+                                        <form method="post" action="?handler=Delete" style="display:inline;" onsubmit="return confirm('Delete this category?');">
+                                            <input type="hidden" name="category" value="category" />
+                                            <input type="hidden" name="id" value="@cat.Id" />
+                                            <button type="submit" class="btn-icon-small danger" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="4">No records found</td>
+                            </tr>
+                        }
+                        break;
+
+                    case "reasons-for-revision":
+                        @if (Model.ReasonsForRevRep.Any())
+                        {
+                            foreach (var r in Model.ReasonsForRevRep)
+                            {
+                                <tr>
+                                    <td><strong>@r.Name</strong></td>
+                                    <td><span class="status-badge @(r.IsActive ? "active" : "inactive")">@(r.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="mono">@(r.DateCreated?.ToString("yyyy-MM-dd") ?? "")</td>
+                                    <td style="text-align:right;">
+                                        <button type="button" class="btn-icon-small btn-edit" data-id="@r.Id" data-category="reasons-for-revision" title="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
+                                        <form method="post" action="?handler=Delete" style="display:inline;" onsubmit="return confirm('Delete this reason?');">
+                                            <input type="hidden" name="category" value="reasons-for-revision" />
+                                            <input type="hidden" name="id" value="@r.Id" />
+                                            <button type="submit" class="btn-icon-small danger" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="4">No records found</td>
+                            </tr>
+                        }
+                        break;
+
+                    case "noted-by":
+                        @if (Model.NotedByList.Any())
+                        {
+                            foreach (var n in Model.NotedByList)
+                            {
+                                <tr>
+                                    <td><strong>@n.Name</strong></td>
+                                    <td><span class="status-badge @(n.IsActive ? "active" : "inactive")">@(n.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="mono">@(n.DateCreated?.ToString("yyyy-MM-dd") ?? "")</td>
+                                    <td style="text-align:right;">
+                                        <button type="button" class="btn-icon-small btn-edit" data-id="@n.Id" data-category="noted-by" title="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
+                                        <form method="post" action="?handler=Delete" style="display:inline;" onsubmit="return confirm('Delete this noted-by record?');">
+                                            <input type="hidden" name="category" value="noted-by" />
+                                            <input type="hidden" name="id" value="@n.Id" />
+                                            <button type="submit" class="btn-icon-small danger" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="4">No records found</td>
+                            </tr>
+                        }
+                        break;
+
+                    case "registered-by":
+                        @if (Model.RegisteredByList.Any())
+                        {
+                            foreach (var rb in Model.RegisteredByList)
+                            {
+                                <tr>
+                                    <td><strong>@rb.Name</strong></td>
+                                    <td><span class="status-badge @(rb.IsActive ? "active" : "inactive")">@(rb.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="mono">@(rb.DateCreated?.ToString("yyyy-MM-dd") ?? "")</td>
+                                    <td style="text-align:right;">
+                                        <button type="button" class="btn-icon-small btn-edit" data-id="@rb.Id" data-category="registered-by" title="Edit">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        </button>
+                                        <form method="post" action="?handler=Delete" style="display:inline;" onsubmit="return confirm('Delete this registered-by record?');">
+                                            <input type="hidden" name="category" value="registered-by" />
+                                            <input type="hidden" name="id" value="@rb.Id" />
+                                            <button type="submit" class="btn-icon-small danger" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="empty-row">
+                                <td colspan="4">No records found</td>
+                            </tr>
+                        }
+                        break;
+                }
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- Add Record Modal Dialog -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-dialog" id="addModal">
+        <div class="modal-header">
+            <h2>Add @Model.SelectedCategoryTitle</h2>
+            <button type="button" class="modal-close-btn" id="closeModalBtn">&times;</button>
+        </div>
+        <form method="post" action="?handler=Add" id="addForm">
+            <div class="modal-body">
+                <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                <input type="hidden" id="recordId" name="id" value="" />
+                @if (Model.SelectedCategory == "customers")
+                {
+                    <div class="form-group">
+                        <label for="bpCode">BP Code</label>
+                        <input type="text" id="bpCode" name="bpCode" placeholder="Enter BP Code" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="bpName">Customer Name</label>
+                        <input type="text" id="bpName" name="bpName" placeholder="Enter Customer Name" required />
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Enter Name" required />
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+                <button type="submit" class="btn-primary" id="modalSubmitBtn">Add Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
 <script>
-    // Swap the active category card and reload the record panel for that category.
-    // Wire the fetch/AJAX call to your Prerequisites page handler as needed.
-    document.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('click', () => {
-            document.querySelector('.category-card.active')?.classList.remove('active');
-            card.classList.add('active');
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRecordBtn = document.getElementById('addRecordBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const addModal = document.getElementById('addModal');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const addForm = document.getElementById('addForm');
+        const modalTitle = addModal.querySelector('.modal-header h2');
+        const modalSubmitBtn = document.getElementById('modalSubmitBtn');
+        const recordIdInput = document.getElementById('recordId');
+
+        function openModal() {
+            addModal.classList.add('show');
+            modalBackdrop.classList.add('show');
+            modalBackdrop.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            // Move focus to first input for accessibility and to avoid accidental clicks on underlying elements
+            setTimeout(() => {
+                const firstInput = document.getElementById('bpCode') || document.getElementById('bpName') || document.getElementById('name');
+                if (firstInput) {
+                    try { firstInput.focus(); } catch (e) { }
+                }
+            }, 60);
+        }
+
+        function closeModal() {
+            addModal.classList.remove('show');
+            modalBackdrop.classList.remove('show');
+            modalBackdrop.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        addRecordBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Reset modal for "Add" action
+        function prepareAddModal() {
+            addForm.action = '?handler=Add';
+            modalTitle.textContent = 'Add ' + '@Model.SelectedCategoryTitle';
+            modalSubmitBtn.textContent = 'Add Record';
+            recordIdInput.value = '';
+            // Clear inputs
+            const bpCode = document.getElementById('bpCode'); if (bpCode) bpCode.value = '';
+            const bpName = document.getElementById('bpName'); if (bpName) bpName.value = '';
+            const name = document.getElementById('name'); if (name) name.value = '';
+        }
+
+        // Open edit modal and populate fields
+        async function openEditModal(id, category) {
+            try {
+                const url = `?handler=Record&category=${encodeURIComponent(category)}&id=${encodeURIComponent(id)}`;
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Failed to fetch record');
+                const data = await resp.json();
+                if (!data) throw new Error('No data');
+
+                // Populate fields based on category
+                if (category === 'customers') {
+                    document.getElementById('bpCode').value = data.bpCode || '';
+                    document.getElementById('bpName').value = data.bpName || '';
+                } else {
+                    const nameField = document.getElementById('name');
+                    if (nameField) nameField.value = data.name || '';
+                }
+
+                // Switch form to Edit
+                addForm.action = '?handler=Edit';
+                recordIdInput.value = id;
+                modalTitle.textContent = 'Edit ' + '@Model.SelectedCategoryTitle';
+                modalSubmitBtn.textContent = 'Save Changes';
+                openModal();
+            }
+            catch (err) {
+                console.error(err);
+                alert('Unable to load record for editing.');
+            }
+        }
+
+        // Close modal only when clicking directly on the backdrop (outside the modal)
+        modalBackdrop.addEventListener('click', function(e) {
+            if (e.target === modalBackdrop) {
+                closeModal();
+            }
         });
-        card.addEventListener('keydown', e => {
-            if (e.key === 'Enter' || e.key === ' ') card.click();
+
+        // Prevent clicks inside the modal from bubbling to the backdrop (which would close the modal)
+        addModal.addEventListener('click', function(e) { 
+            e.stopPropagation(); 
         });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modalBackdrop.classList.contains('show')) {
+                closeModal();
+            }
+        });
+
+        // Swap the active category card
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelector('.category-card.active')?.classList.remove('active');
+                card.classList.add('active');
+            });
+            card.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    card.click();
+                }
+            });
+        });
+
+        // Wire edit buttons
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const category = this.getAttribute('data-category');
+                if (!id || !category) return;
+                // When editing, ensure selected category matches; if not, reload to correct category then open modal
+                if ('@Model.SelectedCategory' !== category) {
+                    // navigate to the category and include a hash instructing to open the modal after reload
+                    window.location.href = `?category=${encodeURIComponent(category)}&openEditId=${encodeURIComponent(id)}`;
+                    return;
+                }
+                openEditModal(id, category);
+            });
+        });
+
+        // If the page was loaded with openEditId parameter (from redirect), open the edit modal
+        (function checkOpenEditOnLoad() {
+            const params = new URLSearchParams(window.location.search);
+            const openEditId = params.get('openEditId');
+            const category = params.get('category') || '@Model.SelectedCategory';
+            if (openEditId) {
+                // remove openEditId from URL to avoid loops
+                params.delete('openEditId');
+                const newUrl = window.location.pathname + '?' + params.toString();
+                window.history.replaceState({}, '', newUrl);
+                openEditModal(openEditId, category);
+            }
+        })();
+
+        // Ensure add modal resets when opening add button
+        addRecordBtn.addEventListener('click', prepareAddModal);
     });
 </script>
 }

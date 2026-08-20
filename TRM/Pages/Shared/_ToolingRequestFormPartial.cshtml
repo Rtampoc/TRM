@@ -1,0 +1,562 @@
+@model TRM.Models.TRF.ToolingRequestForm
+@using TRM.Models;
+
+<div class="trf-form-wrapper">
+    <!-- Form Header -->
+    <div class="trf-header">
+        <div class="trf-title">
+            <h1>Tooling Request Form (TRF)</h1>
+            <p>Create, update, and manage tooling requests with detailed specifications and approval workflow</p>
+        </div>
+        <div class="trf-header-actions">
+            <button type="button" class="btn-action print" id="btnPrintTop" title="Print">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                </svg>
+                Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Form Status Messages -->
+    @if (ViewData.ModelState.Values.Any(x => x.Errors.Any()))
+    {
+        <div class="alert-box error">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div class="alert-content">
+                <strong>Please fix the following errors:</strong>
+                <ul class="error-list">
+                    @foreach (var modelState in ViewData.ModelState.Values)
+                    {
+                        @foreach (var error in modelState.Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+
+    <form method="post" id="trfForm" class="trf-form">
+        <!-- Toolbar -->
+        <div class="trf-toolbar">
+            <div class="toolbar-primary">
+                <button type="button" class="btn btn-primary" id="btnSubmit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Submit
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnSaveDraft">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Draft
+                </button>
+            </div>
+            <div class="toolbar-secondary">
+                <button type="button" class="btn btn-ghost" id="btnCancel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Content Grid -->
+        <div class="trf-content">
+            <!-- Left Column -->
+            <div class="trf-column primary">
+                <!-- TRF Number Section -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <polyline points="13 2 13 9 20 9"></polyline>
+                            </svg>
+                            TRF Details
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="TRFNo" class="form-label">TRF No. <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="TRFNo" name="TRFNo" placeholder="e.g., TRF-2025-001" asp-for="TRFNo" required>
+                            <span class="form-text">Auto-generated or manual entry</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="CPIPNumber" class="form-label">CPIP Number</label>
+                            <input type="text" class="form-control" id="CPIPNumber" name="CPIPNumber" placeholder="Enter CPIP number" asp-for="CPIPNumber">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="DateRequested" class="form-label">Date Requested</label>
+                                    <input type="date" class="form-control" id="DateRequested" name="DateRequested" asp-for="DateRequested">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="TRFStatus" class="form-label">Status</label>
+                                    <input type="text" class="form-control" id="TRFStatus" name="TRFStatus" placeholder="e.g., Active" asp-for="TRFStatus">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer & Product Section -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Customer & Product
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="CustomerId" class="form-label">Customer <span class="required">*</span></label>
+                            <select class="form-select" id="CustomerId" name="CustomerId" asp-items="ViewBag.CustomerList" required>
+                                <option value="">-- Select Customer --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Customer Status</label>
+                            <div class="button-group">
+                                <input type="radio" class="btn-check" name="customerStatus" id="customerStatus1" value="New">
+                                <label class="btn-option" for="customerStatus1">New</label>
+                                <input type="radio" class="btn-check" name="customerStatus" id="customerStatus2" value="Existing" checked>
+                                <label class="btn-option" for="customerStatus2">Existing</label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="Model" class="form-label">Model</label>
+                                    <input type="text" class="form-control" id="Model" name="Model" placeholder="Enter model name" asp-for="Model">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="NoCavities" class="form-label">No. of Cavities</label>
+                                    <input type="number" class="form-control" id="NoCavities" name="NoCavities" asp-for="NoCavities">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="FullCavities" class="form-label">Full Cavities</label>
+                                    <input type="number" class="form-control" id="FullCavities" name="FullCavities" asp-for="FullCavities">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool Information -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            </svg>
+                            Tool Information
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="ToolTypeId" class="form-label">Tool Type</label>
+                                    <select class="form-select" id="ToolTypeId" name="ToolTypeId" asp-items="ViewBag.ToolTypeList">
+                                        <option value="">-- Select Tool Type --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="CategoryId" class="form-label">Category</label>
+                                    <select class="form-select" id="CategoryId" name="CategoryId" asp-items="ViewBag.CategoryList">
+                                        <option value="">-- Select Category --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="ReasonForRevRepId" class="form-label">Revision Reason</label>
+                                    <select class="form-select" id="ReasonForRevRepId" name="ReasonForRevRepId" asp-items="ViewBag.ReasonForRevRepList">
+                                        <option value="">-- Select Reason --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="OtherToolType" class="form-label">Other Tool Type</label>
+                            <input type="text" class="form-control" id="OtherToolType" name="OtherToolType" placeholder="Specify if applicable" asp-for="OtherToolType">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="trf-column secondary">
+                <!-- Ownership & Payment -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <path d="M12 1v6m6.16-1.82l-4.24 4.24m6.98 6.98l-4.24-4.24M23 12h-6m1.82 6.16l-4.24-4.24m-6.98 6.98l4.24-4.24M1 12h6M7.18 7.82l4.24 4.24"></path>
+                            </svg>
+                            Ownership & Payment
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="ownership-section">
+                            <div class="ownership-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="customerOwned" name="ownership" value="CustomerOwned">
+                                    <label class="form-check-label" for="customerOwned">
+                                        Customer Owned
+                                    </label>
+                                </div>
+                                <div class="nested">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="poBased" name="poBased">
+                                        <label class="form-check-label" for="poBased">PO Based</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control form-control-sm" id="poNumber" name="PONumber" placeholder="PO #" asp-for="PONumber">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ownership-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="amortized" name="amortized">
+                                    <label class="form-check-label" for="amortized">Amortized</label>
+                                </div>
+                            </div>
+
+                            <div class="ownership-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="primepackOwned" name="ownership" value="PrimepackOwned">
+                                    <label class="form-check-label" for="primepackOwned">
+                                        Primepack Owned (Assets)
+                                    </label>
+                                </div>
+                                <div class="nested">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="primepackExpense" name="primepackExpense">
+                                        <label class="form-check-label" for="primepackExpense">Primepack Expense</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="coOwned" name="coOwned">
+                                        <label class="form-check-label" for="coOwned">Co-owned</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control form-control-sm" id="coOwnedPercent" name="CoOwnedPercent" placeholder="% if Co-owned">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-divider"></div>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="Ownership" class="form-label">Ownership Type</label>
+                                    <input type="text" class="form-control" id="Ownership" name="Ownership" placeholder="Classification" asp-for="Ownership">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="POBasedStatus" class="form-label">PO Based Status</label>
+                                    <input type="text" class="form-control" id="POBasedStatus" name="POBasedStatus" asp-for="POBasedStatus">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="AmortizationStatus" class="form-label">Amortization Status</label>
+                                    <input type="text" class="form-control" id="AmortizationStatus" name="AmortizationStatus" asp-for="AmortizationStatus">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="NumberOfTrays" class="form-label">Number of Trays</label>
+                                    <input type="number" class="form-control" id="NumberOfTrays" name="NumberOfTrays" asp-for="NumberOfTrays">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ConfirmedQuotationRefNo" class="form-label">Quotation Ref No.</label>
+                            <input type="text" class="form-control" id="ConfirmedQuotationRefNo" name="ConfirmedQuotationRefNo" placeholder="e.g., QT-2025-001" asp-for="ConfirmedQuotationRefNo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Timeline -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Project Timeline
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="FASubmission" class="form-label">FA Submission</label>
+                                    <input type="date" class="form-control" id="FASubmission" name="FASubmission" asp-for="FASubmission">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="MouldAvailability" class="form-label">Mould Availability</label>
+                                    <input type="date" class="form-control" id="MouldAvailability" name="MouldAvailability" asp-for="MouldAvailability">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approvals & Signatures -->
+                <div class="form-card signature-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Signatures & Workflow
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- First Row: Prepared By, Noted By, Reviewed By, Approved By, Registered By -->
+                        <div class="form-row signature-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="PreparedById" class="form-label">Prepared By</label>
+                                    <select class="form-select" id="PreparedById" name="PreparedById" asp-items="ViewBag.RegisteredByList">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="NotedById" class="form-label">Noted By</label>
+                                    <select class="form-select" id="NotedById" name="NotedById" asp-items="ViewBag.NotedByList">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="ReviewedById" class="form-label">Reviewed By</label>
+                                    <select class="form-select" id="ReviewedById" name="ReviewedById" asp-items="ViewBag.RegisteredByList">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="ApprovedByPrimepackId" class="form-label">Approved By (Primepack)</label>
+                                    <select class="form-select" id="ApprovedByPrimepackId" name="ApprovedByPrimepackId" asp-items="ViewBag.RegisteredByList">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="RegisteredById" class="form-label">Registered By</label>
+                                    <select class="form-select" id="RegisteredById" name="RegisteredById" asp-items="ViewBag.RegisteredByList">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Second Row: Noted By (Finance) -->
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="NotedByFinance" class="form-label">Noted By (Finance)</label>
+                                    <select class="form-select" id="NotedByFinance" name="NotedByFinanceId" asp-items="ViewBag.RegisteredByList">
+                                        <option value="">-- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Items Section -->
+        <div class="line-items-section">
+            <div class="section-header">
+                <h3>CNC Tools</h3>
+                <button type="button" class="btn-add-row" data-table="cncTable">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Row
+                </button>
+            </div>
+            <div class="table-wrapper">
+                <table class="line-items-table" id="cncTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>JO Number</th>
+                            <th>Tool Descriptor</th>
+                            <th>Length</th>
+                            <th>Width</th>
+                            <th>Height</th>
+                            <th>Kgs</th>
+                            <th>Est. Machine</th>
+                            <th>Material</th>
+                            <th>Machining (PHP)</th>
+                            <th>Testing</th>
+                            <th>Other</th>
+                            <th>Total (PHP)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="line-item-row">
+                            <td>1</td>
+                            <td><input type="text" class="form-control form-control-sm" name="LineItems[0].JONumber"></td>
+                            <td><input type="text" class="form-control form-control-sm" name="LineItems[0].ToolDescriptor"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].Length"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].Width"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].Height"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].TotalKgs"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].EstMachineCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].MaterialCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].MachiningCostPHP"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].TestingCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].OtherCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[0].TotalCostPHP" readonly></td>
+                            <td><button type="button" class="btn-remove-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"></line></svg></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="line-items-section">
+            <div class="section-header">
+                <h3>Knife Tools</h3>
+                <button type="button" class="btn-add-row" data-table="knifeTable">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Row
+                </button>
+            </div>
+            <div class="table-wrapper">
+                <table class="line-items-table" id="knifeTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>JO Number</th>
+                            <th>Tool Descriptor</th>
+                            <th>Length</th>
+                            <th>Width</th>
+                            <th>Height</th>
+                            <th>Kgs</th>
+                            <th>Est. Machine</th>
+                            <th>Material</th>
+                            <th>Machining (PHP)</th>
+                            <th>Testing</th>
+                            <th>Other</th>
+                            <th>Total (PHP)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="line-item-row">
+                            <td>1</td>
+                            <td><input type="text" class="form-control form-control-sm" name="LineItems[1].JONumber"></td>
+                            <td><input type="text" class="form-control form-control-sm" name="LineItems[1].ToolDescriptor"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].Length"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].Width"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].Height"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].TotalKgs"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].EstMachineCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].MaterialCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].MachiningCostPHP"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].TestingCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].OtherCost"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm" name="LineItems[1].TotalCostPHP" readonly></td>
+                            <td><button type="button" class="btn-remove-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"></line></svg></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="trf-footer">
+            <div class="footer-actions">
+                <button type="button" class="btn btn-ghost" id="btnCancelFooter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Cancel
+                </button>
+            </div>
+            <div class="footer-actions right">
+                <button type="button" class="btn btn-ghost" id="btnPrintFooter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    </svg>
+                    Print
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnSaveDraftFooter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Draft
+                </button>
+                <button type="submit" class="btn btn-primary" id="btnSubmitFooter">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<input type="hidden" id="formStatus" name="FormStatus" value="Draft">

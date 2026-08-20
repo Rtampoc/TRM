@@ -1,0 +1,18 @@
+@page
+@model TRM.Pages.ToolingRequestModel
+@{
+    ViewData["Title"] = "Tooling Request Form";
+    ViewData["Active"] = "trfs";
+    Layout = "~/Pages/Shared/_LayoutDashboard.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/trfform.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<div class="container-fluid py-4">
+    <partial name="_ToolingRequestFormPartial" model="Model.TRF" />
+</div>
+
+@section Scripts {
+    <script src="~/js/trfform.js"></script>
+}
