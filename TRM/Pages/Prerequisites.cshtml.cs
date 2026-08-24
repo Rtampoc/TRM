@@ -36,13 +36,16 @@ namespace TRM.Pages
         }
 
         // Handler to add a new record to a selected prerequisite category
-        public async Task<IActionResult> OnPostAddAsync(string category, string? bpCode, string? bpName, string? name)
+        public async Task<IActionResult> OnPostAddAsync(string category, string? bpCode, string? bpName, string? name, string? status)
         {
             if (string.IsNullOrEmpty(category))
             {
                 TempData["ErrorMessage"] = "Category is required.";
                 return RedirectToPage();
             }
+
+            // Status select posts "Active" / "Inactive"; default to Active when not supplied.
+            bool isActive = !string.Equals(status, "Inactive", StringComparison.OrdinalIgnoreCase);
 
             try
             {
@@ -59,7 +62,7 @@ namespace TRM.Pages
                         {
                             BPCode = bpCode!.Trim(),
                             BPName = bpName!.Trim(),
-                            IsActive = true,
+                            IsActive = isActive,
                             DateCreated = DateTime.Now
                         });
                         break;
@@ -74,7 +77,7 @@ namespace TRM.Pages
                         _context.ToolTypes.Add(new ToolType
                         {
                             Name = name!.Trim(),
-                            IsActive = true,
+                            IsActive = isActive,
                             DateCreated = DateTime.Now
                         });
                         break;
@@ -89,7 +92,7 @@ namespace TRM.Pages
                         _context.Categories.Add(new Category
                         {
                             Name = name!.Trim(),
-                            IsActive = true,
+                            IsActive = isActive,
                             DateCreated = DateTime.Now
                         });
                         break;
@@ -104,7 +107,7 @@ namespace TRM.Pages
                         _context.ReasonsForRevRep.Add(new ReasonForRevRep
                         {
                             Name = name!.Trim(),
-                            IsActive = true,
+                            IsActive = isActive,
                             DateCreated = DateTime.Now
                         });
                         break;
@@ -119,7 +122,7 @@ namespace TRM.Pages
                         _context.NotedByList.Add(new NotedBy
                         {
                             Name = name!.Trim(),
-                            IsActive = true,
+                            IsActive = isActive,
                             DateCreated = DateTime.Now
                         });
                         break;
@@ -134,7 +137,7 @@ namespace TRM.Pages
                         _context.RegisteredByList.Add(new RegisteredBy
                         {
                             Name = name!.Trim(),
-                            IsActive = true,
+                            IsActive = isActive,
                             DateCreated = DateTime.Now
                         });
                         break;
@@ -240,13 +243,18 @@ namespace TRM.Pages
         }
 
         // Edit a record
-        public async Task<IActionResult> OnPostEditAsync(int id, string category, string? bpCode, string? bpName, string? name)
+        public async Task<IActionResult> OnPostEditAsync(int id, string category, string? bpCode, string? bpName, string? name, string? status)
         {
             if (string.IsNullOrEmpty(category))
             {
                 TempData["ErrorMessage"] = "Category is required.";
                 return RedirectToPage();
             }
+
+            // Status select posts "Active" / "Inactive"; only apply it if it was actually submitted.
+            bool? isActive = string.IsNullOrEmpty(status)
+                ? null
+                : string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase);
 
             try
             {
@@ -261,6 +269,7 @@ namespace TRM.Pages
                         }
                         if (!string.IsNullOrWhiteSpace(bpCode)) c.BPCode = bpCode.Trim();
                         if (!string.IsNullOrWhiteSpace(bpName)) c.BPName = bpName.Trim();
+                        if (isActive.HasValue) c.IsActive = isActive.Value;
                         break;
                     case "tool-types":
                         var t = await _context.ToolTypes.FindAsync(id);
@@ -270,6 +279,7 @@ namespace TRM.Pages
                             return RedirectToPage(new { category = "tool-types" });
                         }
                         if (!string.IsNullOrWhiteSpace(name)) t.Name = name.Trim();
+                        if (isActive.HasValue) t.IsActive = isActive.Value;
                         break;
                     case "category":
                         var cat = await _context.Categories.FindAsync(id);
@@ -279,6 +289,7 @@ namespace TRM.Pages
                             return RedirectToPage(new { category = "category" });
                         }
                         if (!string.IsNullOrWhiteSpace(name)) cat.Name = name.Trim();
+                        if (isActive.HasValue) cat.IsActive = isActive.Value;
                         break;
                     case "reasons-for-revision":
                         var r = await _context.ReasonsForRevRep.FindAsync(id);
@@ -288,6 +299,7 @@ namespace TRM.Pages
                             return RedirectToPage(new { category = "reasons-for-revision" });
                         }
                         if (!string.IsNullOrWhiteSpace(name)) r.Name = name.Trim();
+                        if (isActive.HasValue) r.IsActive = isActive.Value;
                         break;
                     case "noted-by":
                         var n = await _context.NotedByList.FindAsync(id);
@@ -297,6 +309,7 @@ namespace TRM.Pages
                             return RedirectToPage(new { category = "noted-by" });
                         }
                         if (!string.IsNullOrWhiteSpace(name)) n.Name = name.Trim();
+                        if (isActive.HasValue) n.IsActive = isActive.Value;
                         break;
                     case "registered-by":
                         var rb = await _context.RegisteredByList.FindAsync(id);
@@ -306,6 +319,7 @@ namespace TRM.Pages
                             return RedirectToPage(new { category = "registered-by" });
                         }
                         if (!string.IsNullOrWhiteSpace(name)) rb.Name = name.Trim();
+                        if (isActive.HasValue) rb.IsActive = isActive.Value;
                         break;
                     default:
                         TempData["ErrorMessage"] = "Unknown category.";
