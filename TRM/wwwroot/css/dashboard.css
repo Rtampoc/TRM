@@ -728,15 +728,10 @@ table.record-table {
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 1040;
+    z-index: 9998;
     padding: 0;
     margin: 0;
     overflow: hidden;
-    /* Backdrop is blurred and darkened */
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    isolation: isolate;
 }
 
     .modal-backdrop.show {
@@ -746,10 +741,24 @@ table.record-table {
         padding: 20px;
     }
 
+/* The dim + blur is a real, separate DOM element (not a pseudo-element),
+   positioned independently and painted behind the dialog. This avoids any
+   browser-specific compositing quirks that can occur when backdrop-filter
+   and a transformed/opaque sibling share a stacking context. */
+.modal-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;
+}
+
 .modal-dialog {
     position: relative;
-    /* Dialog itself is fully opaque white */
-    background-color: #ffffff !important;
+    background-color: rgb(255, 255, 255);
+    background-clip: padding-box;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.15);
     width: 100%;
@@ -758,10 +767,26 @@ table.record-table {
     overflow-y: auto;
     overflow-x: hidden;
     opacity: 1;
+    filter: none;
+    mix-blend-mode: normal;
     transform: scale(0.95) translateY(-20px);
     transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 1050;
-    isolation: isolate;
+    z-index: 1;
+}
+
+.modal-backdrop.show .modal-dialog {
+    pointer-events: auto;
+}
+
+/* While the modal is open, lock out clicks on everything behind it so an
+   overlapping/underlying element (category cards, table rows, etc.) can
+   never intercept a click meant for the modal. */
+body.modal-open .dashboard-wrapper {
+    pointer-events: none;
+}
+
+body.modal-open .modal-backdrop {
+    pointer-events: auto;
 }
 
 .modal-backdrop.show .modal-dialog {
@@ -786,6 +811,7 @@ table.record-table {
     align-items: center;
     justify-content: space-between;
     padding: 24px;
+    background-color: #ffffff;
     border-bottom: 1px solid #e0e0e0;
 }
 
