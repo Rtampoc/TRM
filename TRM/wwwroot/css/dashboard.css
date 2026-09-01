@@ -732,6 +732,7 @@ table.record-table {
     padding: 0;
     margin: 0;
     overflow: hidden;
+    background: rgba(0, 0, 0, 0.6);
 }
 
     .modal-backdrop.show {
@@ -739,6 +740,7 @@ table.record-table {
         align-items: center;
         justify-content: center;
         padding: 20px;
+        background: rgba(0, 0, 0, 0.6);
     }
 
 /* The dim + blur is a real, separate DOM element (not a pseudo-element),
@@ -749,15 +751,15 @@ table.record-table {
     position: fixed;
     inset: 0;
     z-index: 0;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     pointer-events: none;
 }
 
 .modal-dialog {
     position: relative;
-    background-color: rgb(255, 255, 255);
+    background-color: #ffffff;
     background-clip: padding-box;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 8px 16px rgba(0, 0, 0, 0.15);
@@ -858,7 +860,7 @@ body.modal-open .modal-backdrop {
     .form-group label {
         font-weight: 600;
         font-size: 14px;
-        color: #333;
+        color: rgba(51, 51, 51, 0.6);
     }
 
     .form-group input,
@@ -903,7 +905,7 @@ body.modal-open .modal-backdrop {
     gap: 12px;
     padding: 16px 24px;
     border-top: 1px solid #e0e0e0;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
 }
 
 .btn-cancel {
