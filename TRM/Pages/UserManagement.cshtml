@@ -1,0 +1,433 @@
+@page
+@model TRM.Pages.UserManagementModel
+@{
+    ViewData["Title"] = "User Management";
+    ViewData["Active"] = "users";
+    Layout = "~/Pages/Shared/_LayoutDashboard.cshtml";
+}
+
+<header class="dashboard-header">
+    <div class="header-content">
+        <h1>User Management</h1>
+        <p>Manage system users, roles, and access levels.</p>
+    </div>
+    <button type="button" class="btn-new-request" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add User
+    </button>
+</header>
+
+<div class="dashboard-content">
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- User Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon user-icon">👥</div>
+            <div class="stat-content">
+                <div class="stat-value">@Model.Statistics.TotalUsers</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon active-icon">✓</div>
+            <div class="stat-content">
+                <div class="stat-value">@Model.Statistics.ActiveUsers</div>
+                <div class="stat-label">Active</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon inactive-icon">✕</div>
+            <div class="stat-content">
+                <div class="stat-value">@Model.Statistics.InactiveUsers</div>
+                <div class="stat-label">Inactive</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon admin-icon">🔐</div>
+            <div class="stat-content">
+                <div class="stat-value">@Model.Statistics.AdminUsers</div>
+                <div class="stat-label">Admins</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access Levels Section -->
+    <div class="access-levels-section">
+        <h3>ACCESS LEVELS</h3>
+        <div class="access-level-grid">
+            <div class="access-level-card">
+                <div class="role-icon admin">🔐</div>
+                <div class="role-info">
+                    <div class="role-name">Admin</div>
+                    <div class="role-desc">Full system access</div>
+                </div>
+            </div>
+
+            <div class="access-level-card">
+                <div class="role-icon approver">✓</div>
+                <div class="role-info">
+                    <div class="role-name">Approver</div>
+                    <div class="role-desc">Approve & manage requests</div>
+                </div>
+            </div>
+
+            <div class="access-level-card">
+                <div class="role-icon encoder">📝</div>
+                <div class="role-info">
+                    <div class="role-name">Encoder</div>
+                    <div class="role-desc">Create & edit records</div>
+                </div>
+            </div>
+
+            <div class="access-level-card">
+                <div class="role-icon viewer">👁</div>
+                <div class="role-info">
+                    <div class="role-name">Viewer</div>
+                    <div class="role-desc">Read-only access</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="search-input-wrapper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, or username..." value="@Model.SearchQuery" />
+        </div>
+
+        <div class="filter-dropdowns">
+            <select class="filter-select" id="roleFilter">
+                @{
+                    var roleOptions = new[] { "All Roles", "Admin", "Approver", "Encoder", "Viewer" };
+                }
+                @foreach (var role in roleOptions)
+                {
+                    if (role == Model.RoleFilter)
+                    {
+                        <option value="@role" selected>@role</option>
+                    }
+                    else
+                    {
+                        <option value="@role">@role</option>
+                    }
+                }
+            </select>
+
+            <select class="filter-select" id="statusFilter">
+                @{
+                    var statusOptions = new[] { "All Status", "Active", "Inactive" };
+                }
+                @foreach (var status in statusOptions)
+                {
+                    if (status == Model.StatusFilter)
+                    {
+                        <option value="@status" selected>@status</option>
+                    }
+                    else
+                    {
+                        <option value="@status">@status</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-table-wrapper">
+        <div class="users-table-header">
+            <div class="header-cell user-name-col">User</div>
+            <div class="header-cell email-col">Email</div>
+            <div class="header-cell role-col">Role</div>
+            <div class="header-cell last-login-col">Last Login</div>
+            <div class="header-cell status-col">Status</div>
+            <div class="header-cell actions-col">Actions</div>
+        </div>
+
+        @if (Model.Users != null && Model.Users.Count > 0)
+        {
+            @foreach (var user in Model.Users)
+            {
+                <div class="user-table-row">
+                    <div class="user-name-col">
+                        <div class="user-avatar">
+                            @{
+                                var initials = string.Join("", user.EmployeeName?.Split(' ').Select(w => w.FirstOrDefault().ToString().ToUpper()) ?? new[] { "?" });
+                            }
+                            @initials
+                        </div>
+                        <div class="user-info">
+                            <div class="user-full-name">@user.EmployeeName</div>
+                            <div class="user-username">@@user.UserId</div>
+                        </div>
+                    </div>
+
+                    <div class="email-col">
+                        <a href="mailto:@user.Email">@user.Email</a>
+                    </div>
+
+                    <div class="role-col">
+                        <span class="role-badge role-@(user.Role?.ToLower() ?? "viewer")">
+                            @user.Role
+                        </span>
+                    </div>
+
+                    <div class="last-login-col">
+                        @if (user.LastLogin.HasValue)
+                        {
+                            <span>@user.LastLogin.Value.ToString("yyyy-MM-dd")</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Never</span>
+                        }
+                    </div>
+
+                    <div class="status-col">
+                        @if (user.IsActive)
+                        {
+                            <span class="status-badge active">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status-badge inactive">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>
+                                Inactive
+                            </span>
+                        }
+                    </div>
+
+                    <div class="actions-col">
+                        <button type="button" class="action-btn edit-btn" title="Edit user" onclick="editUser(@user.Id)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L21 3z"></path>
+                            </svg>
+                        </button>
+
+                        <form method="post" asp-page-handler="ToggleStatus" asp-route-userId="@user.Id" style="display:inline;">
+                            <button type="submit" class="action-btn toggle-btn" title="@(user.IsActive ? "Deactivate" : "Activate") user" onclick="return confirm('@(user.IsActive ? "Deactivate" : "Activate") this user?');">
+                                @if (user.IsActive)
+                                {
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                }
+                            </button>
+                        </form>
+
+                        <form method="post" asp-page-handler="Delete" asp-route-userId="@user.Id" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                            <button type="submit" class="action-btn delete-btn" title="Delete user">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state-table">
+                <div>No users found.</div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination info -->
+    @if (Model.Users != null && Model.Users.Count > 0)
+    {
+        <div class="pagination-info">
+            Showing @Model.Users.Count of @Model.Statistics.TotalUsers users
+        </div>
+    }
+</div>
+
+<!-- Add New User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <h5 id="addUserModalLabel">Add New User</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-body">
+                    <!-- Full Name -->
+                    <div class="form-group-modal">
+                        <label class="form-label">Full Name</label>
+                        <div class="input-wrapper">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text" class="form-control" id="fullName" name="NewUser.EmployeeName" placeholder="Juan dela Cruz" required />
+                        </div>
+                    </div>
+
+                    <!-- Username and Password Row -->
+                    <div class="form-row">
+                        <div class="form-group-modal">
+                            <label class="form-label">Username</label>
+                            <div class="input-wrapper">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <input type="text" class="form-control" id="username" name="NewUser.UserId" placeholder="jdelacruz" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group-modal">
+                            <label class="form-label">Password</label>
+                            <div class="input-wrapper">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 2v6h-6M3 12.5a6.5 6.5 0 0 1 6.5-6.5"></path>
+                                </svg>
+                                <input type="password" class="form-control" id="password" name="NewUser.Password" placeholder="••••••••" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group-modal">
+                        <label class="form-label">Email</label>
+                        <div class="input-wrapper">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                            </svg>
+                            <input type="email" class="form-control" id="email" name="NewUser.Email" placeholder="juan@company.com" required />
+                        </div>
+                    </div>
+
+                    <!-- Access Level Selection -->
+                    <div class="form-group-modal">
+                        <label class="form-label">Access Level</label>
+                        <div class="access-level-selector">
+                            <div class="role-option">
+                                <input type="radio" id="roleAdmin" name="NewUser.Role" value="Admin" />
+                                <label for="roleAdmin" class="role-option-label admin">
+                                    <span class="role-icon">🔐</span>
+                                    <span class="role-text">
+                                        <span class="role-name">Admin</span>
+                                        <span class="role-description">Full system access</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="role-option">
+                                <input type="radio" id="roleApprover" name="NewUser.Role" value="Approver" />
+                                <label for="roleApprover" class="role-option-label approver">
+                                    <span class="role-icon">✓</span>
+                                    <span class="role-text">
+                                        <span class="role-name">Approver</span>
+                                        <span class="role-description">Approve & manage requests</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="role-option">
+                                <input type="radio" id="roleEncoder" name="NewUser.Role" value="Encoder" />
+                                <label for="roleEncoder" class="role-option-label encoder">
+                                    <span class="role-icon">📝</span>
+                                    <span class="role-text">
+                                        <span class="role-name">Encoder</span>
+                                        <span class="role-description">Create & edit records</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="role-option">
+                                <input type="radio" id="roleViewer" name="NewUser.Role" value="Viewer" />
+                                <label for="roleViewer" class="role-option-label viewer">
+                                    <span class="role-icon">👁</span>
+                                    <span class="role-text">
+                                        <span class="role-name">Viewer</span>
+                                        <span class="role-description">Read-only access</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Status -->
+                    <div class="form-group-modal account-status">
+                        <label class="form-label">Account Status</label>
+                        <div class="status-toggle">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span class="toggle-label">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function editUser(userId) {
+            // TODO: Implement edit functionality
+            alert('Edit functionality to be implemented for user ' + userId);
+        }
+
+        document.getElementById('searchInput')?.addEventListener('change', function () {
+            const form = document.querySelector('form');
+            // Implement search via form submission
+        });
+
+        document.getElementById('roleFilter')?.addEventListener('change', function () {
+            const form = document.querySelector('form');
+            // Implement role filter via form submission
+        });
+
+        document.getElementById('statusFilter')?.addEventListener('change', function () {
+            const form = document.querySelector('form');
+            // Implement status filter via form submission
+        });
+    </script>
+}

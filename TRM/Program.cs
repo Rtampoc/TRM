@@ -15,6 +15,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register authentication service
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
+// Register user management service
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+
 // Add session support
 builder.Services.AddSession(options =>
 {
