@@ -1,3 +1,4 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using TRM.Data;
 using TRM.Models;
@@ -13,6 +14,11 @@ namespace TRM.Services
         /// Gets all users with optional filtering
         /// </summary>
         Task<List<User>> GetAllUsersAsync();
+
+        /// <summary>
+        /// Gets the available departments for user forms
+        /// </summary>
+        Task<List<string>> GetDepartmentsAsync();
 
         /// <summary>
         /// Gets user statistics for dashboard
@@ -88,6 +94,28 @@ namespace TRM.Services
         }
 
         /// <summary>
+        /// Gets available department names for user forms.
+        /// </summary>
+        public async Task<List<string>> GetDepartmentsAsync()
+        {
+            try
+            {
+                return await _context.Departments
+                    .AsNoTracking()
+                    .Where(department => department.Department != "")
+                    .Select(department => department.Department)
+                    .Distinct()
+                    .OrderBy(department => department)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving departments");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Gets user statistics for the dashboard
         /// </summary>
         public async Task<UserStatistics> GetUserStatisticsAsync()
@@ -138,7 +166,20 @@ namespace TRM.Services
                     throw new ArgumentNullException(nameof(user));
 
                 if (string.IsNullOrWhiteSpace(user.UserId))
-                    throw new ArgumentException("Username is required");
+                    throw new ArgumentException("User ID is required.");
+                if (string.IsNullOrWhiteSpace(user.Department))
+                    throw new ArgumentException("Department is required.");
+                if (user.Department.Length > 100)
+                    throw new ArgumentException("Department cannot exceed 100 characters.");
+
+                user.UserId = user.UserId.Trim();
+                user.Department = user.Department.Trim();
+
+                var departmentExists = await _context.Departments
+                    .AsNoTracking()
+                    .AnyAsync(department => department.Department == user.Department);
+                if (!departmentExists)
+                    throw new InvalidOperationException("Select a department from the list.");
 
                 // Check if user already exists
                 var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == user.UserId);
@@ -146,13 +187,16 @@ namespace TRM.Services
                     throw new InvalidOperationException($"User with username '{user.UserId}' already exists");
 
                 user.DateCreated = DateTime.UtcNow;
-                user.IsActive = true;
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation($"User '{user.UserId}' created successfully");
                 return user;
+            }
+            catch (DbUpdateException ex) when (ex.GetBaseException() is SqlException { Number: 2601 or 2627 })
+            {
+                throw new InvalidOperationException($"User ID '{user.UserId}' is already in use.", ex);
             }
             catch (Exception ex)
             {

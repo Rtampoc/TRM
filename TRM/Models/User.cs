@@ -13,7 +13,7 @@ namespace TRM.Models
 
         public string Password { get; set; } = string.Empty;
         public string? EmployeeName { get; set; }
-        public string? Department { get; set; }
+        public string Department { get; set; } = string.Empty;
         public string? Email { get; set; }
         public string? Role { get; set; }
         public bool IsActive { get; set; } = true;

@@ -13,19 +13,16 @@ namespace TRM.Pages
         private readonly IUserManagementService _userManagementService;
         private readonly ILogger<UserManagementModel> _logger;
 
-        [BindProperty]
         public List<User> Users { get; set; } = new();
 
-        [BindProperty]
         public UserStatistics Statistics { get; set; } = new();
 
-        [BindProperty]
+        public List<string> Departments { get; set; } = new();
+
         public string SearchQuery { get; set; } = string.Empty;
 
-        [BindProperty]
         public string RoleFilter { get; set; } = "All Roles";
 
-        [BindProperty]
         public string StatusFilter { get; set; } = "All Status";
 
         [BindProperty]
@@ -40,17 +37,17 @@ namespace TRM.Pages
         /// <summary>
         /// Called when the page loads
         /// </summary>
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             try
             {
                 // Check authorization - only admins can access
-                var userRole = HttpContext.Session.GetString("UserRole");
+                // Session stores role in key "Role" (set during login). Use that key.
+                var userRole = HttpContext.Session.GetString("Role");
                 if (userRole != "Admin" && userRole != "admin")
                 {
                     _logger.LogWarning($"Unauthorized access attempt to User Management from role: {userRole}");
-                    RedirectToPage("/Index");
-                    return;
+                    return RedirectToPage("/Index");
                 }
 
                 await LoadUserData();
@@ -60,6 +57,8 @@ namespace TRM.Pages
                 _logger.LogError(ex, "Error loading user management page");
                 ModelState.AddModelError("", "An error occurred while loading user data.");
             }
+
+            return Page();
         }
 
         /// <summary>
@@ -70,26 +69,59 @@ namespace TRM.Pages
             try
             {
                 // Check authorization
-                var userRole = HttpContext.Session.GetString("UserRole");
+                var userRole = HttpContext.Session.GetString("Role");
                 if (userRole != "Admin" && userRole != "admin")
                 {
                     return Forbid();
                 }
 
+                NewUser.UserId = (NewUser.UserId ?? string.Empty).Trim();
+                NewUser.EmployeeName = (NewUser.EmployeeName ?? string.Empty).Trim();
+                NewUser.Email = (NewUser.Email ?? string.Empty).Trim();
+                NewUser.Department = (NewUser.Department ?? string.Empty).Trim();
+                NewUser.Role = (NewUser.Role ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(NewUser.UserId))
+                    ModelState.AddModelError("NewUser.UserId", "User ID is required.");
+                else if (NewUser.UserId.Length > 50)
+                    ModelState.AddModelError("NewUser.UserId", "User ID cannot exceed 50 characters.");
+
+                if (string.IsNullOrWhiteSpace(NewUser.EmployeeName))
+                    ModelState.AddModelError("NewUser.EmployeeName", "Full name is required.");
+                else if (NewUser.EmployeeName.Length > 100)
+                    ModelState.AddModelError("NewUser.EmployeeName", "Full name cannot exceed 100 characters.");
+
+                if (string.IsNullOrWhiteSpace(NewUser.Password))
+                    ModelState.AddModelError("NewUser.Password", "Password is required.");
+                else if (NewUser.Password.Length > 255)
+                    ModelState.AddModelError("NewUser.Password", "Password cannot exceed 255 characters.");
+
+                if (string.IsNullOrWhiteSpace(NewUser.Email))
+                    ModelState.AddModelError("NewUser.Email", "Email is required.");
+                else if (NewUser.Email.Length > 255)
+                    ModelState.AddModelError("NewUser.Email", "Email cannot exceed 255 characters.");
+                else if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(NewUser.Email))
+                    ModelState.AddModelError("NewUser.Email", "Enter a valid email address.");
+
+                if (string.IsNullOrWhiteSpace(NewUser.Department))
+                    ModelState.AddModelError("NewUser.Department", "Department is required.");
+                else if (NewUser.Department.Length > 100)
+                    ModelState.AddModelError("NewUser.Department", "Department cannot exceed 100 characters.");
+
+                NewUser.Role = NewUser.Role.ToLowerInvariant() switch
+                {
+                    "admin" => "Admin",
+                    "approver" => "Approver",
+                    "encoder" => "Encoder",
+                    "viewer" => "Viewer",
+                    _ => string.Empty
+                };
+                if (string.IsNullOrEmpty(NewUser.Role))
+                    ModelState.AddModelError("NewUser.Role", "Select an access level.");
+
                 if (!ModelState.IsValid)
                 {
-                    await LoadUserData();
-                    return Page();
-                }
-
-                // Validate required fields
-                if (string.IsNullOrWhiteSpace(NewUser.UserId) ||
-                    string.IsNullOrWhiteSpace(NewUser.Password) ||
-                    string.IsNullOrWhiteSpace(NewUser.EmployeeName) ||
-                    string.IsNullOrWhiteSpace(NewUser.Email) ||
-                    string.IsNullOrWhiteSpace(NewUser.Role))
-                {
-                    ModelState.AddModelError("", "All fields are required");
+                    ViewData["OpenAddModal"] = true;
                     await LoadUserData();
                     return Page();
                 }
@@ -99,25 +131,21 @@ namespace TRM.Pages
 
                 _logger.LogInformation($"User '{createdUser.UserId}' created successfully");
 
-                // Reload data
-                await LoadUserData();
-                NewUser = new(); // Reset form
-
                 TempData["SuccessMessage"] = $"User '{createdUser.EmployeeName}' created successfully!";
+                return RedirectToPage();
             }
             catch (InvalidOperationException ex)
             {
-                ModelState.AddModelError("", ex.Message);
-                await LoadUserData();
+                _logger.LogWarning(ex, "User creation was rejected for user ID '{UserId}'", NewUser.UserId);
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToPage();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating user");
-                ModelState.AddModelError("", "An error occurred while creating the user.");
-                await LoadUserData();
+                _logger.LogError(ex, "Error creating user with ID '{UserId}'", NewUser.UserId);
+                TempData["ErrorMessage"] = "The user could not be saved. Please try again or contact support if the problem continues.";
+                return RedirectToPage();
             }
-
-            return Page();
         }
 
         /// <summary>
@@ -128,7 +156,7 @@ namespace TRM.Pages
             try
             {
                 // Check authorization
-                var userRole = HttpContext.Session.GetString("UserRole");
+                var userRole = HttpContext.Session.GetString("Role");
                 if (userRole != "Admin" && userRole != "admin")
                 {
                     return Forbid();
@@ -140,12 +168,24 @@ namespace TRM.Pages
                     return NotFound();
                 }
 
+                var wasActive = user.IsActive;
+                if (!NewUser.IsActive && wasActive &&
+                    int.TryParse(HttpContext.Session.GetString("UserId"), out var currentUserId) &&
+                    user.Id == currentUserId)
+                {
+                    TempData["ErrorMessage"] = "You cannot deactivate your own account.";
+                    return RedirectToPage();
+                }
+
                 // Update user properties from request
                 if (!string.IsNullOrWhiteSpace(NewUser.EmployeeName))
                     user.EmployeeName = NewUser.EmployeeName;
 
                 if (!string.IsNullOrWhiteSpace(NewUser.Email))
                     user.Email = NewUser.Email;
+
+                if (!string.IsNullOrWhiteSpace(NewUser.Department))
+                    user.Department = NewUser.Department.Trim();
 
                 if (!string.IsNullOrWhiteSpace(NewUser.Role))
                     user.Role = NewUser.Role;
@@ -157,15 +197,20 @@ namespace TRM.Pages
 
                 await _userManagementService.UpdateUserAsync(user);
 
-                _logger.LogInformation($"User '{user.UserId}' updated successfully");
+                _logger.LogInformation("User {UserId} updated successfully", user.UserId);
 
                 await LoadUserData();
-                TempData["SuccessMessage"] = $"User '{user.EmployeeName}' updated successfully!";
+                TempData["SuccessMessage"] = wasActive != user.IsActive
+                    ? $"User '{user.EmployeeName}' account {(user.IsActive ? "activated" : "deactivated")}."
+                    : $"User '{user.EmployeeName}' updated successfully!";
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating user");
                 ModelState.AddModelError("", "An error occurred while updating the user.");
+                // Keep edit modal open and preserve the entered values
+                ViewData["OpenEditModal"] = true;
+                ViewData["EditUserId"] = userId;
                 await LoadUserData();
             }
 
@@ -175,44 +220,58 @@ namespace TRM.Pages
         /// <summary>
         /// Handles toggling user active status
         /// </summary>
-        public async Task<IActionResult> OnPostToggleStatusAsync(int userId)
+        public async Task<IActionResult> OnPostToggleStatusAsync(int userId, bool? isActive)
         {
+            var userRole = HttpContext.Session.GetString("Role");
+            if (userRole != "Admin" && userRole != "admin")
+            {
+                return Forbid();
+            }
+
+            if (userId <= 0 || !isActive.HasValue)
+            {
+                return BadRequest();
+            }
+
             try
             {
-                // Check authorization
-                var userRole = HttpContext.Session.GetString("UserRole");
-                if (userRole != "Admin" && userRole != "admin")
-                {
-                    return Forbid();
-                }
-
                 var user = await _userManagementService.GetUserByIdAsync(userId);
                 if (user == null)
                 {
                     return NotFound();
                 }
 
-                if (user.IsActive)
+                if (!isActive.Value && user.IsActive &&
+                    int.TryParse(HttpContext.Session.GetString("UserId"), out var currentUserId) &&
+                    user.Id == currentUserId)
                 {
-                    await _userManagementService.DeactivateUserAsync(userId);
-                    TempData["SuccessMessage"] = $"User '{user.EmployeeName}' deactivated.";
-                }
-                else
-                {
-                    await _userManagementService.ActivateUserAsync(userId);
-                    TempData["SuccessMessage"] = $"User '{user.EmployeeName}' activated.";
+                    TempData["ErrorMessage"] = "You cannot deactivate your own account.";
+                    return RedirectToPage();
                 }
 
-                await LoadUserData();
+                if (user.IsActive != isActive.Value)
+                {
+                    var updated = isActive.Value
+                        ? await _userManagementService.ActivateUserAsync(userId)
+                        : await _userManagementService.DeactivateUserAsync(userId);
+
+                    if (!updated)
+                    {
+                        return NotFound();
+                    }
+                }
+
+                TempData["SuccessMessage"] = isActive.Value
+                    ? $"User '{user.EmployeeName}' activated."
+                    : $"User '{user.EmployeeName}' deactivated.";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error toggling user status");
-                ModelState.AddModelError("", "An error occurred while toggling user status.");
-                await LoadUserData();
+                _logger.LogError(ex, "Error setting active status for user ID {UserId}", userId);
+                TempData["ErrorMessage"] = "The account status could not be changed. Please try again.";
             }
 
-            return Page();
+            return RedirectToPage();
         }
 
         /// <summary>
@@ -223,7 +282,7 @@ namespace TRM.Pages
             try
             {
                 // Check authorization
-                var userRole = HttpContext.Session.GetString("UserRole");
+                var userRole = HttpContext.Session.GetString("Role");
                 if (userRole != "Admin" && userRole != "admin")
                 {
                     return Forbid();
@@ -260,8 +319,9 @@ namespace TRM.Pages
         {
             try
             {
-                // Get statistics
+                // Get statistics and department options
                 Statistics = await _userManagementService.GetUserStatisticsAsync();
+                Departments = await _userManagementService.GetDepartmentsAsync();
 
                 // Get all users
                 var allUsers = await _userManagementService.GetAllUsersAsync();

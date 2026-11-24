@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TRM.Data;
@@ -46,6 +46,9 @@ namespace TRM.Pages
 
             // Status select posts "Active" / "Inactive"; default to Active when not supplied.
             bool isActive = !string.Equals(status, "Inactive", StringComparison.OrdinalIgnoreCase);
+
+            bool isAjax = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase)
+                        || (Request.Headers.ContainsKey("Accept") && Request.Headers["Accept"].ToString().Contains("application/json"));
 
             try
             {
@@ -149,15 +152,27 @@ namespace TRM.Pages
 
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Record added successfully.";
+                if (isAjax)
+                {
+                    return new JsonResult(new { success = true, message = "Record added successfully." });
+                }
+
                 return RedirectToPage(new { category = category });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding prerequisite record");
                 TempData["ErrorMessage"] = "An error occurred while adding the record.";
+                if (isAjax)
+                {
+                    return StatusCode(500, new { success = false, error = "An error occurred while adding the record." });
+                }
+
                 return RedirectToPage(new { category = category });
             }
         }
+
+
 
         public async Task OnGetAsync(string? category)
         {
@@ -209,36 +224,36 @@ namespace TRM.Pages
                 {
                     case "customers":
                         var c = await _context.Customers.FindAsync(id);
-                        if (c == null) return new JsonResult(null);
-                        return new JsonResult(new { id = c.Id, bpCode = c.BPCode, bpName = c.BPName, isActive = c.IsActive });
+                        if (c == null) return new JsonResult(new { success = false, error = "Customer not found" }) { StatusCode = 404 };
+                        return new JsonResult(new { success = true, id = c.Id, bpCode = c.BPCode, bpName = c.BPName, isActive = c.IsActive });
                     case "tool-types":
                         var t = await _context.ToolTypes.FindAsync(id);
-                        if (t == null) return new JsonResult(null);
-                        return new JsonResult(new { id = t.Id, name = t.Name, isActive = t.IsActive });
+                        if (t == null) return new JsonResult(new { success = false, error = "Tool type not found" }) { StatusCode = 404 };
+                        return new JsonResult(new { success = true, id = t.Id, name = t.Name, isActive = t.IsActive });
                     case "category":
                         var cat = await _context.Categories.FindAsync(id);
-                        if (cat == null) return new JsonResult(null);
-                        return new JsonResult(new { id = cat.Id, name = cat.Name, isActive = cat.IsActive });
+                        if (cat == null) return new JsonResult(new { success = false, error = "Category not found" }) { StatusCode = 404 };
+                        return new JsonResult(new { success = true, id = cat.Id, name = cat.Name, isActive = cat.IsActive });
                     case "reasons-for-revision":
                         var r = await _context.ReasonsForRevRep.FindAsync(id);
-                        if (r == null) return new JsonResult(null);
-                        return new JsonResult(new { id = r.Id, name = r.Name, isActive = r.IsActive });
+                        if (r == null) return new JsonResult(new { success = false, error = "Reason not found" }) { StatusCode = 404 };
+                        return new JsonResult(new { success = true, id = r.Id, name = r.Name, isActive = r.IsActive });
                     case "noted-by":
                         var n = await _context.NotedByList.FindAsync(id);
-                        if (n == null) return new JsonResult(null);
-                        return new JsonResult(new { id = n.Id, name = n.Name, isActive = n.IsActive });
+                        if (n == null) return new JsonResult(new { success = false, error = "Record not found" }) { StatusCode = 404 };
+                        return new JsonResult(new { success = true, id = n.Id, name = n.Name, isActive = n.IsActive });
                     case "registered-by":
                         var rb = await _context.RegisteredByList.FindAsync(id);
-                        if (rb == null) return new JsonResult(null);
-                        return new JsonResult(new { id = rb.Id, name = rb.Name, isActive = rb.IsActive });
+                        if (rb == null) return new JsonResult(new { success = false, error = "Record not found" }) { StatusCode = 404 };
+                        return new JsonResult(new { success = true, id = rb.Id, name = rb.Name, isActive = rb.IsActive });
                     default:
-                        return new JsonResult(null);
+                        return new JsonResult(new { success = false, error = "Unknown category" }) { StatusCode = 400 };
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching record for edit");
-                return StatusCode(500);
+                return StatusCode(500, new { success = false, error = "An error occurred fetching the record" });
             }
         }
 
@@ -255,6 +270,9 @@ namespace TRM.Pages
             bool? isActive = string.IsNullOrEmpty(status)
                 ? null
                 : string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase);
+
+            bool isAjax = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase)
+                        || (Request.Headers.ContainsKey("Accept") && Request.Headers["Accept"].ToString().Contains("application/json"));
 
             try
             {
@@ -328,12 +346,22 @@ namespace TRM.Pages
 
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Record updated successfully.";
+                if (isAjax)
+                {
+                    return new JsonResult(new { success = true, message = "Record updated successfully." });
+                }
+
                 return RedirectToPage(new { category = category });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error editing prerequisite record");
                 TempData["ErrorMessage"] = "An error occurred while updating the record.";
+                if (isAjax)
+                {
+                    return StatusCode(500, new { success = false, error = "An error occurred while updating the record." });
+                }
+
                 return RedirectToPage(new { category = category });
             }
         }

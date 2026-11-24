@@ -15,6 +15,7 @@ namespace TRM.Data
         }
 
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<DepartmentLookup> Departments { get; set; } = null!;
         public DbSet<ToolType> ToolTypes { get; set; } = null!;
         public DbSet<RegisteredBy> RegisteredByList { get; set; } = null!;
         public DbSet<ReasonForRevRep> ReasonsForRevRep { get; set; } = null!;
@@ -30,6 +31,17 @@ namespace TRM.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<DepartmentLookup>(entity =>
+            {
+                entity.ToTable("Department", "dbo");
+                entity.HasKey(department => department.Id);
+                entity.Property(department => department.Id).HasColumnName("Id");
+                entity.Property(department => department.Department)
+                    .HasColumnName("Department")
+                    .HasMaxLength(100)
+                    .IsRequired();
+            });
 
             // Configure the Users entity to map to the TRMS_Users table
             modelBuilder.Entity<User>(entity =>
@@ -60,7 +72,8 @@ namespace TRM.Data
 
                 entity.Property(e => e.Department)
                     .HasColumnName("Department")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .IsRequired();
 
                 entity.Property(e => e.Email)
                     .HasColumnName("Email")
@@ -71,8 +84,7 @@ namespace TRM.Data
                     .HasMaxLength(100);
 
                 entity.Property(e => e.IsActive)
-                    .HasColumnName("IsActive")
-                    .HasDefaultValue(true);
+                    .HasColumnName("IsActive");
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnName("DateCreated")
